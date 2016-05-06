@@ -1,2 +1,0 @@
-#! /bin/bash
-docker build -t nycjv321/es-logstash-initializer .
