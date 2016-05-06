@@ -3,7 +3,7 @@ services:
   web:
     image: kibana
     ports:
-     - "5601:5601"
+      - "5601:5601"
     links: 
       - redis
       - logstash
@@ -16,14 +16,15 @@ services:
      - ELASTICSEARCH_URL=http://elasticsearch:9200
   redis:
     image: redis
+    ports:
+      - "6379:6379" 
   logstash:
     image: "logstash:2.3.2-1"
     volumes:
-      - logstash:/etc/logstash/conf.d
+      - ./logstash:/etc/logstash/conf.d
+    command: logstash -f /etc/logstash/conf.d/central.conf
   elasticsearch:
     image: elasticsearch
-    volumes:
-      - ./elasticsearch:/etc/elasticsearch/utils
 volumes:
   logstash:
     external: false

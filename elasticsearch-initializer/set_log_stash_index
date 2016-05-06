@@ -1,0 +1,40 @@
+#! /bin/bash
+
+#git clone https://gist.github.com/0e0d9733c4243941f4e8.git ls-es-template
+
+max_tries=15
+elasticsearch_host=${ELASTICSEARCH_HOST:-127.0.0.1}
+
+
+# wait for the server to initialize
+while [[ $(curl -X HEAD -s -S -D - $elasticsearch_host:9200 | grep 'HTTP') != *200* ]]
+do
+  if [ $max_tries = 0 ]; then
+   echo "FATAL: elasticsearch never booted. Please review config!"
+   exit -1
+  fi
+  echo "Waiting for elasticsearch to boot"
+  sleep 1
+  max_tries=$(($max_tries - 1))
+done
+
+if [[ "$(curl -X HEAD -s -S -D - $elasticsearch_host:9200 2>&1 )" == *refused* ]]
+then
+  echo "Elasticsearch not accessible on $elasticsearch_host. Is it up on this host?"
+  exit -1
+fi
+
+# check that our server doesn't already have the template
+response="$(curl -X HEAD -s -S -D - $elasticsearch_host:9200/_template/logstash | grep 'HTTP')"
+if [[ "$response" == *404* ]]
+then
+  echo "Pushing Logstash template"
+  curl -X PUT $elasticsearch_host:9200/_template/logstash -d @ls-es-template-20150831.json
+elif [[ "$response" == *200*  ]]
+then
+  echo "The template already exists"
+else
+  echo "FATAL: got $response when checking for the logstash template"
+  exit -1
+fi
+
