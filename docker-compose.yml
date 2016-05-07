@@ -25,6 +25,8 @@ services:
     command: logstash -f /etc/logstash/conf.d/central.conf
   elasticsearch:
     image: elasticsearch
+    volumes:
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
 volumes:
   logstash:
     external: false
