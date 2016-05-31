@@ -25,8 +25,14 @@ services:
     command: logstash -f /etc/logstash/conf.d/central.conf
   elasticsearch:
     image: elasticsearch
+    ports:
+      - "9200:9200" 
+      - "9300:9300" 
     volumes:
-      - ./elasticsearch/data:/usr/share/elasticsearch/data
+      - ./elasticsearch/config:/usr/share/elasticsearch/config
+      - /usr/share/elasticsearch/data:/usr/share/elasticsearch/data
+      - /usr/share/elasticsearch/backups:/usr/share/elasticsearch/backups
+      
 volumes:
   logstash:
     external: false
